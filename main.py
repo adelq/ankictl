@@ -14,6 +14,7 @@ def save_collection_css(collection, output="output"):
 
     models = json.loads(c.fetchone()[0])
     for model in models.values():
+        metadata = {}
         # Create folder for model
         name = model["name"]
         # Forward slashes mess up file paths
@@ -21,10 +22,14 @@ def save_collection_css(collection, output="output"):
         # Ex: output/M2/Cloze-AQ/
         dirpath = os.path.join(output, collection, clean_name)
         os.makedirs(dirpath, exist_ok=True)
+        metadata["name"] = name
         # Save css
         css = model["css"]
         with open(os.path.join(dirpath, "index.css"), "w") as f:
             f.write(css)
+        # Save metadata
+        with open(os.path.join(dirpath, "meta.json"), "w") as f:
+            f.write(json.dumps(metadata))
 
 
 def get_collections():
