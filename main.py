@@ -27,6 +27,19 @@ def save_collection_css(collection, output="output"):
         css = model["css"]
         with open(os.path.join(dirpath, "index.css"), "w") as f:
             f.write(css)
+        templates = model["tmpls"]
+        for template in templates:
+            tmpl_name = template["name"]
+            question = template["qfmt"]
+            answer = template["afmt"]
+            tmpl_path = os.path.join(dirpath, tmpl_name.replace("/", "|"))
+            os.makedirs(tmpl_path, exist_ok=True)
+            # Templates are similar enough to mustache format
+            with open(os.path.join(tmpl_path, "question.mustache"), "w") as f:
+                f.write(question)
+            with open(os.path.join(tmpl_path, "answer.mustache"), "w") as f:
+                f.write(answer)
+        metadata["card_count"] = len(templates)
         # Save metadata
         with open(os.path.join(dirpath, "meta.json"), "w") as f:
             f.write(json.dumps(metadata))
