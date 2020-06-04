@@ -2,25 +2,23 @@ import os
 import json
 import sqlite3
 
-ANKI_BASE_PATH = os.path.expanduser("~/.local/share/Anki2/")
-COLLECTION_PATH = ANKI_BASE_PATH + "{}/collection.anki2"
+from aqt import mw
+from aqt.qt import QAction
+from aqt.utils import tooltip
 
+OUTPUT_DIR = "/home/adel/Projects/ankictl/output/"
 
-def save_collection_css(collection, output="output"):
-    db_path = COLLECTION_PATH.format(collection)
-    conn = sqlite3.connect(db_path)
-    c = conn.cursor()
-    c.execute("SELECT models from col")
-
-    models = json.loads(c.fetchone()[0])
-    for model in models.values():
+def save_collection_css():
+    collection = mw.pm.name
+    models = mw.col.models.all()
+    for model in models:
         metadata = {}
         # Create folder for model
         name = model["name"]
         # Forward slashes mess up file paths
         clean_name = name.replace("/", "|")
         # Ex: output/M2/Cloze-AQ/
-        dirpath = os.path.join(output, collection, clean_name)
+        dirpath = os.path.join(OUTPUT_DIR, collection, clean_name)
         os.makedirs(dirpath, exist_ok=True)
         metadata["name"] = name
         # Save css
@@ -43,6 +41,8 @@ def save_collection_css(collection, output="output"):
         # Save metadata
         with open(os.path.join(dirpath, "meta.json"), "w") as f:
             f.write(json.dumps(metadata))
+    # TODO: Save Anki addon config
+    tooltip("Saved {} models to {}".format(len(models), OUTPUT_DIR))
 
 
 def get_collections():
@@ -60,3 +60,11 @@ def get_collections():
         if os.path.isfile(db_path):
             collection_dirs.append(listing)
     return collection_dirs
+
+if __name__ != '__main__':
+    eaction = QAction("Export styles from Anki", mw)
+    eaction.triggered.connect(save_collection_css)
+    mw.form.menuTools.addAction(eaction)
+    # iaction = QAction("Import styles into Anki", mw)
+    # iaction.triggered.connect(push_collection_css)
+    # mw.form.menuTools.addAction(iaction)
