@@ -24,14 +24,14 @@ def save_collection_css():
         os.makedirs(dirpath, exist_ok=True)
         metadata["name"] = name
         # Save css
-        css = model["css"].rstrip() + "\n"
+        css = model["css"]
         with open(os.path.join(dirpath, "index.css"), "w") as f:
             f.write(css)
         templates = model["tmpls"]
         for template in templates:
             tmpl_name = template["name"]
-            question = template["qfmt"].rstrip() + "\n"
-            answer = template["afmt"].rstrip() + "\n"
+            question = template["qfmt"]
+            answer = template["afmt"]
             tmpl_path = os.path.join(dirpath, tmpl_name.replace("/", "|"))
             os.makedirs(tmpl_path, exist_ok=True)
             # Templates are similar enough to mustache format
@@ -61,7 +61,7 @@ def push_collection_css():
         assert os.path.isdir(dirpath)
         # Read CSS
         with open(os.path.join(dirpath, "index.css"), "r") as f:
-            css = f.read().rstrip()
+            css = f.read()
         # Update CSS
         model["css"] = css
         # Now same for each HTML-ish template
@@ -71,9 +71,9 @@ def push_collection_css():
             tmpl_path = os.path.join(dirpath, tmpl_name.replace("/", "|"))
             # Read templates
             with open(os.path.join(tmpl_path, "question.mustache"), "r") as f:
-                question = f.read()[:-1]
+                question = f.read()
             with open(os.path.join(tmpl_path, "answer.mustache"), "r") as f:
-                answer = f.read()[:-1]
+                answer = f.read()
             template["qfmt"] = question
             template["afmt"] = answer
         # Write changes
