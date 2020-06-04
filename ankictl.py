@@ -1,6 +1,8 @@
 import os
+import sys
 import json
 import sqlite3
+import difflib
 
 from aqt import mw
 from aqt.qt import QAction
@@ -45,6 +47,28 @@ def save_collection_css():
     tooltip("Saved {} models to {}".format(len(models), OUTPUT_DIR))
 
 
+def push_collection_css():
+    collection = mw.pm.name
+    models = mw.col.models.all()
+    for model in models:
+        # Get directory for each model
+        # Ex: output/M2/Cloze-AQ/
+        name = model["name"]
+        print("Working on %s" % name)
+        # Forward slashes mess up file paths
+        clean_name = name.replace("/", "|")
+        dirpath = os.path.join(OUTPUT_DIR, collection, clean_name)
+        assert os.path.isdir(dirpath)
+        # Read CSS
+        with open(os.path.join(dirpath, "index.css"), "r") as f:
+            css = f.read().rstrip()
+        modelcss = model["css"].rstrip()
+        if modelcss != css:
+            d = difflib.Differ()
+            diff = d.compare(css.splitlines(), modelcss.splitlines())
+            sys.stdout.writelines(diff)
+            assert modelcss == css, "CSS does not match for %s" % name
+
 def get_collections():
     collection_dirs = []
     for listing in os.listdir(ANKI_BASE_PATH):
@@ -65,6 +89,6 @@ if __name__ != '__main__':
     eaction = QAction("Export styles from Anki", mw)
     eaction.triggered.connect(save_collection_css)
     mw.form.menuTools.addAction(eaction)
-    # iaction = QAction("Import styles into Anki", mw)
-    # iaction.triggered.connect(push_collection_css)
-    # mw.form.menuTools.addAction(iaction)
+    iaction = QAction("Import styles into Anki", mw)
+    iaction.triggered.connect(push_collection_css)
+    mw.form.menuTools.addAction(iaction)
