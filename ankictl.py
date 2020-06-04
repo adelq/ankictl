@@ -62,28 +62,23 @@ def push_collection_css():
         # Read CSS
         with open(os.path.join(dirpath, "index.css"), "r") as f:
             css = f.read().rstrip()
-        modelcss = model["css"].rstrip()
-        if modelcss != css:
-            d = difflib.Differ()
-            diff = d.compare(css.splitlines(), modelcss.splitlines())
-            sys.stdout.writelines(diff)
-            assert modelcss == css, "CSS does not match for %s" % name
-
-def get_collections():
-    collection_dirs = []
-    for listing in os.listdir(ANKI_BASE_PATH):
-        listing_path = os.path.join(ANKI_BASE_PATH, listing)
-        # Only look at directories, not files
-        if not os.path.isdir(listing_path):
-            continue
-        # Ignore builtin addons/addons21 folders that are reserved
-        if listing == "addons" or listing == "addons21":
-            continue
-        # Check that folder contains a collection, then add it
-        db_path = os.path.join(listing_path, "collection.anki2")
-        if os.path.isfile(db_path):
-            collection_dirs.append(listing)
-    return collection_dirs
+        # Update CSS
+        model["css"] = css
+        # Now same for each HTML-ish template
+        templates = model["tmpls"]
+        for template in templates:
+            tmpl_name = template["name"]
+            tmpl_path = os.path.join(dirpath, tmpl_name.replace("/", "|"))
+            # Read templates
+            with open(os.path.join(tmpl_path, "question.mustache"), "r") as f:
+                question = f.read()[:-1]
+            with open(os.path.join(tmpl_path, "answer.mustache"), "r") as f:
+                answer = f.read()[:-1]
+            template["qfmt"] = question
+            template["afmt"] = answer
+        # Write changes
+        mw.col.models.update(model)
+    tooltip("Updated {} models".format(len(models)))
 
 if __name__ != '__main__':
     eaction = QAction("Export styles from Anki", mw)
