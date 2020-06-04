@@ -1,8 +1,5 @@
 import os
-import sys
 import json
-import sqlite3
-import difflib
 
 from aqt import mw
 from aqt.qt import QAction
