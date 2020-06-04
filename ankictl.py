@@ -22,14 +22,14 @@ def save_collection_css():
         os.makedirs(dirpath, exist_ok=True)
         metadata["name"] = name
         # Save css
-        css = model["css"] + "\n"
+        css = model["css"].rstrip() + "\n"
         with open(os.path.join(dirpath, "index.css"), "w") as f:
             f.write(css)
         templates = model["tmpls"]
         for template in templates:
             tmpl_name = template["name"]
-            question = template["qfmt"] + "\n"
-            answer = template["afmt"] + "\n"
+            question = template["qfmt"].rstrip() + "\n"
+            answer = template["afmt"].rstrip() + "\n"
             tmpl_path = os.path.join(dirpath, tmpl_name.replace("/", "|"))
             os.makedirs(tmpl_path, exist_ok=True)
             # Templates are similar enough to mustache format
