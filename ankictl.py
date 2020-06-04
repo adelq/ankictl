@@ -54,7 +54,7 @@ def push_collection_css():
         # Get directory for each model
         # Ex: output/M2/Cloze-AQ/
         name = model["name"]
-        print("Working on %s" % name)
+        mw.col.log("Working on %s" % name)
         # Forward slashes mess up file paths
         clean_name = name.replace("/", "|")
         dirpath = os.path.join(OUTPUT_DIR, collection, clean_name)
